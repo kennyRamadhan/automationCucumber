@@ -4,7 +4,7 @@ pipeline {
     parameters {
         choice(
             name: 'CUCUMBER_TAG',
-            choices: ['@all', '@smoke', '@regression'],
+            choices: ['@Smoke', '@Regression'],
             description: 'Pilih tag Cucumber yang ingin dijalankan'
         )
 
