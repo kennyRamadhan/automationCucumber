@@ -4,7 +4,7 @@ import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 
 @CucumberOptions(
-	    features = "src/test/java/resources/features",
+	    features = "src/test/resources/features",
 	    glue = {"com.kenny.automation.Web.StepDefinitions", "com.kenny.automation.Web.Hooks"},
 	    plugin = {
 	        "pretty",
