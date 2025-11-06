@@ -66,6 +66,8 @@ public class Login {
         utils.sendKeysWhenReady(inputPassword, password);
         utils.clickWhenReady(loginBtn);
         utils.sleep(1000);
+        
+        LogHelper.detail("Berhasil melakukan login dengan username :" +username);
     }
 
     /**
@@ -76,6 +78,7 @@ public class Login {
         utils.sendKeysWhenReady(inputUserName, username);
         utils.sendKeysWhenReady(inputPassword, password);
         utils.clickWhenReady(loginBtn);
+        LogHelper.detail("Berhasil melakukan login dengan username :" +username);
     }
     
     

@@ -68,16 +68,17 @@ pipeline {
             }
         }
 
-        stage('Archive Allure Report') {
-            steps {
-                script {
-                    def tagName = params.CUCUMBER_TAG.replace('@','')
-                    echo "📁 Archiving report for tag: ${tagName}"
-                    sh "cp -r allure-report allure-report-${tagName}"
-                    archiveArtifacts artifacts: "allure-report-${tagName}/**", fingerprint: true
-                }
-            }
+   stage('Archive Allure Results') {
+    steps {
+        script {
+            def tagName = params.CUCUMBER_TAG.replace('@','')
+            echo "📁 Archiving raw Allure results for tag: ${tagName}"
+            sh "cp -r ${env.ALLURE_RESULTS_DIR} allure-results-${tagName}"
+            archiveArtifacts artifacts: "allure-results-${tagName}/**", fingerprint: true
         }
+    }
+}
+
     }
 
     post {
