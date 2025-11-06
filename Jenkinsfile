@@ -16,31 +16,28 @@ pipeline {
     }
 
     tools {
-        jdk 'jdk22'      // sesuai konfigurasi JDK di Jenkins
-        maven 'maven3'   // sesuai konfigurasi Maven di Jenkins
-        allure 'allure'  // Allure plugin di Jenkins
+        jdk 'jdk22'       // Sesuaikan dengan konfigurasi di Jenkins
+        maven 'maven3'    // Gunakan Maven yang sudah dikonfigurasi di Jenkins
+        allure 'allure'   // Pastikan plugin Allure sudah diinstall
     }
 
     environment {
-        // Set folder Allure default
-        ALLURE_RESULTS_WEB = "allure-results-web"
-        ALLURE_RESULTS_API = "allure-results-api"
+        ALLURE_RESULTS_DIR = "allure-results"  // Satu folder default untuk hasil Cucumber
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo "Cloning repository..."
+                echo " Cloning repository..."
                 git branch: 'main', url: 'https://github.com/kennyRamadhan/automationCucumber.git'
             }
         }
 
-        stage('Prepare Allure Folder') {
+        stage('Prepare Environment') {
             steps {
-                script {
-                    sh "mkdir -p ${env.ALLURE_RESULTS_WEB}"
-                    sh "mkdir -p ${env.ALLURE_RESULTS_API}"
-                }
+                echo "🧹 Cleaning previous reports..."
+                sh "rm -rf ${env.ALLURE_RESULTS_DIR} || true"
+                sh "mkdir -p ${env.ALLURE_RESULTS_DIR}"
             }
         }
 
@@ -48,11 +45,12 @@ pipeline {
             steps {
                 script {
                     echo "Running Cucumber tests with tag: ${params.CUCUMBER_TAG}"
-                    def allureFolder = env.ALLURE_RESULTS_WEB  // ubah jika ingin pisah Web/API
+                    echo "Browser mode: ${params.BROWSER_MODE}"
+
                     sh """
                         mvn clean test \
-                        -Dcucumber.options="--tags ${params.CUCUMBER_TAG}" \
-                        -Dallure.results.directory=${allureFolder} \
+                        -Dcucumber.filter.tags="${params.CUCUMBER_TAG}" \
+                        -Dallure.results.directory=${env.ALLURE_RESULTS_DIR} \
                         -DBROWSER_MODE=${params.BROWSER_MODE}
                     """
                 }
@@ -61,24 +59,22 @@ pipeline {
 
         stage('Generate Allure Report') {
             steps {
-                script {
-                    def allureFolder = env.ALLURE_RESULTS_WEB
-                    echo "Generating Allure report from ${allureFolder}..."
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        results: [[path: allureFolder]]
-                    ])
-                }
+                echo "Generating Allure report..."
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    results: [[path: "${env.ALLURE_RESULTS_DIR}"]]
+                ])
             }
         }
 
         stage('Archive Allure Report') {
             steps {
                 script {
-                    def suiteName = params.CUCUMBER_TAG.replace('@','')
-                    sh "cp -r allure-report allure-report-${suiteName}"
-                    archiveArtifacts artifacts: "allure-report-${suiteName}/**", fingerprint: true
+                    def tagName = params.CUCUMBER_TAG.replace('@','')
+                    echo "📁 Archiving report for tag: ${tagName}"
+                    sh "cp -r allure-report allure-report-${tagName}"
+                    archiveArtifacts artifacts: "allure-report-${tagName}/**", fingerprint: true
                 }
             }
         }
@@ -86,10 +82,13 @@ pipeline {
 
     post {
         success {
-            echo "Build and Cucumber tests completed successfully!"
+            echo " Build & Cucumber tests completed successfully!"
         }
         failure {
-            echo "Build failed! Check logs and allure-results for details."
+            echo "Build failed! Check logs and Allure results for details."
+        }
+        always {
+            echo "Pipeline finished — cleaning up workspace..."
         }
     }
 }
