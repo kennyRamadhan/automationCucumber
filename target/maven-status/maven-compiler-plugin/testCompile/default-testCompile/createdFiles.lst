@@ -1,7 +1,0 @@
-com/kenny/automation/API/MasterAPIJsonPlaceholder.class
-com/kenny/automation/Web/Runner/CucumberTestRunner.class
-com/kenny/automation/Web/StepDefinitions/LoginStep.class
-com/kenny/automation/API/BaseTestAPIJsonPlaceholder.class
-com/kenny/automation/Web/StepDefinitions/CheckoutStep.class
-com/kenny/automation/Web/Hooks/Hook.class
-com/kenny/automation/API/PostTest.class
